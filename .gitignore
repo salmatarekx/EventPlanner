@@ -1,0 +1,35 @@
+# ---------------------
+# Python & FastAPI Project Ignore List
+# ---------------------
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.log
+
+# VSCode / PyCharm configs
+.vscode/
+.idea/
+
+# Environment and secrets
+.env
+*.env
+.env.*
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Uvicorn / Pytest cache
+.cache/
+.pytest_cache/
+.uvicorn/
