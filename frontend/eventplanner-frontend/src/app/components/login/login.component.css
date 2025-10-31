@@ -78,3 +78,32 @@ button:disabled {
   font-weight: bold;
   font-size: 1rem;
 }
+
+.password-group {
+  position: relative;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.2rem;
+  transition: color 0.3s ease;
+}
+
+.toggle-password:hover {
+  color: #2575fc;
+}
+
