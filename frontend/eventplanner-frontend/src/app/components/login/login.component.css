@@ -1,6 +1,6 @@
 body {
   font-family: 'Cairo', sans-serif;
-  background: linear-gradient(to right, #3498db, #8e44ad);
+  background: linear-gradient(to right, #6a11cb, #2575fc);
   height: 100vh;
   margin: 0;
   display: flex;
@@ -8,62 +8,73 @@ body {
   align-items: center;
 }
 
-.login-container {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-  width: 350px;
+.auth-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.auth-box {
+  background-color: #fff;
+  padding: 3rem 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+  width: 420px;
   text-align: center;
 }
 
 h2 {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   color: #333;
+  font-size: 1.8rem;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-align: left;
 }
 
 label {
   display: block;
-  margin-bottom: 0.3rem;
-  font-weight: bold;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
 }
 
 input {
   width: 100%;
-  padding: 0.6rem;
+  padding: 0.8rem 1rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
 }
 
 button {
-  background-color: #3498db;
+  width: 100%;
+  padding: 0.9rem;
+  background-color: #2575fc;
   color: white;
   border: none;
-  padding: 0.7rem 1.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: 0.3s;
-  width: 100%;
+  transition: background 0.3s ease;
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: #1a5edb;
 }
 
 button:disabled {
-  background-color: #bdc3c7;
+  background-color: #b0c4de;
   cursor: not-allowed;
 }
 
 .message {
-  margin-top: 1rem;
+  margin-top: 1.5rem;
   color: #27ae60;
   font-weight: bold;
+  font-size: 1rem;
 }
