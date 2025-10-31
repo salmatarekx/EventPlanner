@@ -1,15 +1,13 @@
-import os
 from pymongo import MongoClient
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
-
 MONGO_URL = os.getenv("MONGO_URL")
 
 client = None
 db = None
 users_collection = None
-
 
 def connect_to_mongo():
     global client, db, users_collection
