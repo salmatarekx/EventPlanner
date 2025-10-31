@@ -24,8 +24,6 @@
   "private": true,
   "dependencies": {
     "@angular/common": "^20.3.0",
-    "@angular/compiler": "^20.3.0",
-    "@angular/core": "^20.3.0",
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/platform-server": "^20.3.0",
@@ -33,12 +31,16 @@
     "@angular/ssr": "^20.3.8",
     "express": "^5.1.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "zone.js": "^0.15.1"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^20.3.8",
     "@angular/build": "^20.3.8",
     "@angular/cli": "^20.3.8",
+    "@angular/compiler": "^20.3.9",
     "@angular/compiler-cli": "^20.3.0",
+    "@angular/core": "^20.3.9",
     "@types/express": "^5.0.1",
     "@types/jasmine": "~5.1.0",
     "@types/node": "^20.17.19",
