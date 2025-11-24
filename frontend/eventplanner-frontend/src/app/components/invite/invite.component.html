@@ -1,0 +1,30 @@
+<div class="auth-wrapper">
+  <div class="auth-box">
+    <h2>Invite User to Event</h2>
+
+    <form (ngSubmit)="onInvite()" #inviteForm="ngForm">
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          required
+          placeholder="Enter user email"
+        />
+      </div>
+
+      <button type="submit" [disabled]="!inviteForm.valid || loading">
+        {{ loading ? 'Inviting...' : 'Invite User' }}
+      </button>
+    </form>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+
+    <div class="actions">
+      <button type="button" class="back-btn" routerLink="/events">Back to Events</button>
+    </div>
+  </div>
+</div>
+
+

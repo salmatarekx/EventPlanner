@@ -23,7 +23,7 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
     togglePassword() {
-    this.showPassword = !this.showPassword; 
+    this.showPassword = !this.showPassword;
   }
 
   onLogin() {
@@ -40,8 +40,8 @@ export class LoginComponent {
         this.token = res.access_token || null;
         if (this.token) {
           console.log('Access token:', this.token);
+          localStorage.setItem('token', this.token);
         }
-        // Stay on login page to show token - no redirect
       },
       error: (err) => {
         this.loading = false;
@@ -53,6 +53,10 @@ export class LoginComponent {
 
   goToHome() {
     this.router.navigate(['/']);
+  }
+
+  goToEvents() {
+    this.router.navigate(['/events']);
   }
 
   copyToken() {
