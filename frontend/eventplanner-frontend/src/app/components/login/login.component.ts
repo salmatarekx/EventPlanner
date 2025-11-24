@@ -15,6 +15,7 @@ export class LoginComponent {
   email = '';
   password = '';
   message = '';
+  token: string | null = null;
   loading = false;
   showPassword = false;
 
@@ -36,12 +37,34 @@ export class LoginComponent {
       next: (res) => {
         this.loading = false;
         this.message = res.message || 'Login successful!';
-        setTimeout(() => this.router.navigate(['/']), 1000);
+        this.token = res.access_token || null;
+        if (this.token) {
+          console.log('Access token:', this.token);
+        }
+        // Stay on login page to show token - no redirect
       },
       error: (err) => {
         this.loading = false;
         this.message = err.error?.detail || 'Invalid credentials';
+        this.token = null;
       }
     });
+  }
+
+  goToHome() {
+    this.router.navigate(['/']);
+  }
+
+  copyToken() {
+    if (this.token) {
+      navigator.clipboard.writeText(this.token).then(() => {
+        this.message = 'Token copied to clipboard!';
+        setTimeout(() => {
+          if (this.token) {
+            this.message = 'Login successful!';
+          }
+        }, 2000);
+      });
+    }
   }
 }

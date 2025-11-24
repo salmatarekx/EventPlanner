@@ -38,8 +38,20 @@
     </form>
 
     <p class="message" *ngIf="message">{{ message }}</p>
+    
+    <div class="token-box" *ngIf="token">
+      <label>Access Token</label>
+      <div class="token-wrapper">
+        <textarea readonly>{{ token }}</textarea>
+        <button type="button" class="copy-btn" (click)="copyToken()">Copy Token</button>
+      </div>
+    </div>
 
-    <p class="switch">
+    <button type="button" class="back-btn" *ngIf="token" (click)="goToHome()">
+      Back to Home
+    </button>
+
+    <p class="switch" *ngIf="!token">
       Don't have an account?
       <a routerLink="/signup">Sign Up</a>
     </p>
