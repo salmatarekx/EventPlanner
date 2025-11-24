@@ -1,4 +1,5 @@
 import os
+import logging
 from passlib.context import CryptContext
 from jose import jwt
 from datetime import datetime, timedelta
@@ -19,6 +20,14 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# logger = logging.getLogger("auth_utils")
+# if not logger.handlers:
+#     handler = logging.StreamHandler()
+#     formatter = logging.Formatter("[%(asctime)s] %(levelname)s %(name)s: %(message)s")
+#     handler.setFormatter(formatter)
+#     logger.addHandler(handler)
+# logger.setLevel(logging.INFO)
+
 
 def hash_password(password: str):
     return pwd_context.hash(password)
@@ -36,5 +45,6 @@ def create_access_token(data: dict):
 
     print("DEBUG SECRET_KEY =", SECRET_KEY, "| type:", type(SECRET_KEY))
     token = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    # logger.info(f"JWT generated for {data.get('sub')}: {token}")
     print("Token created successfully!")
     return token

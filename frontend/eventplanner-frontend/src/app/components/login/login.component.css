@@ -107,3 +107,66 @@ button:disabled {
   color: #2575fc;
 }
 
+.token-box {
+  margin-top: 1.5rem;
+  text-align: left;
+}
+
+.token-box label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.token-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.token-box textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-family: monospace;
+  font-size: 0.85rem;
+  resize: vertical;
+  background-color: #f8f9fa;
+}
+
+.copy-btn {
+  width: 100%;
+  padding: 0.7rem;
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.copy-btn:hover {
+  background-color: #229954;
+}
+
+.back-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.9rem;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.back-btn:hover {
+  background-color: #5a6268;
+}
+

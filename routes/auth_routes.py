@@ -28,7 +28,7 @@ def signup(user: User):
 
         existing_user = database.users_collection.find_one({"email": user.email})
         if existing_user:
-            logger.warning(f"⚠️ Signup failed: {user.email} already registered")
+            logger.warning(f"Signup failed: {user.email} already registered")
             raise HTTPException(status_code=400, detail="Email already registered")
 
         hashed_pw = auth_utils.hash_password(user.password)
@@ -66,7 +66,7 @@ def login(user: User):
             raise HTTPException(status_code=401, detail="Invalid credentials")
 
         token = auth_utils.create_access_token({"sub": user.email})
-        logger.info(f"Token created successfully for {user.email}")
+        logger.info(f"Token created successfully for {user.email}: {token}")
 
         return {
             "access_token": token,
