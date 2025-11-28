@@ -153,23 +153,6 @@ button:disabled {
   background-color: #229954;
 }
 
-.events-btn {
-  width: 100%;
-  margin-top: 1rem;
-  padding: 0.9rem;
-  background-color: #27ae60;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.events-btn:hover {
-  background-color: #229954;
-}
-
 .back-btn {
   width: 100%;
   margin-top: 1rem;

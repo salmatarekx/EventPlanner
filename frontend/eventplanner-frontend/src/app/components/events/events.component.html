@@ -2,9 +2,12 @@
   <div class="events-container">
     <div class="header">
       <h2>Event Management</h2>
-      <button type="button" class="create-btn" (click)="toggleCreateForm()">
-        {{ showCreateForm ? 'Cancel' : '+ Create Event' }}
-      </button>
+      <div class="header-actions">
+        <button type="button" class="search-btn" (click)="goToSearch()">Search Events</button>
+        <button type="button" class="create-btn" (click)="toggleCreateForm()">
+          {{ showCreateForm ? 'Cancel' : '+ Create Event' }}
+        </button>
+      </div>
     </div>
 
     <p class="message" *ngIf="message">{{ message }}</p>
@@ -93,6 +96,7 @@
             <p><strong>Location:</strong> {{ event.location }}</p>
           </div>
           <div class="event-actions">
+            <button type="button" class="attendees-btn" (click)="goToAttendees(event.id)">View Attendees</button>
             <button type="button" class="invite-btn" (click)="goToInvite(event.id)">Invite Users</button>
             <button type="button" class="delete-btn" (click)="deleteEvent(event.id)">Delete</button>
           </div>
@@ -114,6 +118,40 @@
             <p><strong>Time:</strong> {{ event.time }}</p>
             <p><strong>Location:</strong> {{ event.location }}</p>
             <p><strong>Organizer:</strong> {{ event.organizer }}</p>
+            <p *ngIf="event.user_response"><strong>Your Response:</strong> 
+              <span class="response-badge" [ngClass]="getResponseBadgeClass(event.user_response)">
+                {{ event.user_response }}
+              </span>
+            </p>
+          </div>
+          <div class="response-actions">
+            <p class="response-label">Your Response:</p>
+            <div class="response-buttons">
+              <button 
+                type="button" 
+                class="response-btn going" 
+                [class.active]="event.user_response === 'Going'"
+                (click)="respondToEvent(event.id, 'Going')"
+                [disabled]="loading">
+                Going
+              </button>
+              <button 
+                type="button" 
+                class="response-btn maybe" 
+                [class.active]="event.user_response === 'Maybe'"
+                (click)="respondToEvent(event.id, 'Maybe')"
+                [disabled]="loading">
+                Maybe
+              </button>
+              <button 
+                type="button" 
+                class="response-btn not-going" 
+                [class.active]="event.user_response === 'Not Going'"
+                (click)="respondToEvent(event.id, 'Not Going')"
+                [disabled]="loading">
+                Not Going
+              </button>
+            </div>
           </div>
         </div>
       </div>

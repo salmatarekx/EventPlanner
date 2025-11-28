@@ -41,5 +41,25 @@ export class EventService {
   deleteEvent(eventId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${eventId}`, { headers: this.getHeaders() });
   }
+
+  searchEvents(params: { keyword?: string; start_date?: string; end_date?: string; role?: string }): Observable<any> {
+    let queryParams = new URLSearchParams();
+    if (params.keyword) queryParams.append('keyword', params.keyword);
+    if (params.start_date) queryParams.append('start_date', params.start_date);
+    if (params.end_date) queryParams.append('end_date', params.end_date);
+    if (params.role) queryParams.append('role', params.role);
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `${this.apiUrl}/search?${queryString}` : `${this.apiUrl}/search`;
+    return this.http.get(url, { headers: this.getHeaders() });
+  }
+
+  respondToEvent(eventId: string, response: 'Going' | 'Maybe' | 'Not Going'): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${eventId}/respond`, { response }, { headers: this.getHeaders() });
+  }
+
+  getEventAttendees(eventId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${eventId}/attendees`, { headers: this.getHeaders() });
+  }
 }
 
