@@ -16,7 +16,7 @@ def connect_to_mongo():
 
     if client is None:
         client = MongoClient(MONGO_URL, serverSelectionTimeoutMS=5000)
-        db = client["eventplanner"]   # same name as Compass database
+        db = client["event_planner"]
         print("Connected to MongoDB successfully!")
 
     if db is not None:
@@ -26,7 +26,6 @@ def connect_to_mongo():
             events_collection = db["events"]
         if counters_collection is None:
             counters_collection = db["counters"]
-            # Initialize event counter if it doesn't exist
             if counters_collection.find_one({"_id": "event_id"}) is None:
                 counters_collection.insert_one({"_id": "event_id", "sequence_value": 0})
                 print("Initialized event ID counter")

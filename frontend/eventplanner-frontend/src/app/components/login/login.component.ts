@@ -23,7 +23,7 @@ export class LoginComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
     togglePassword() {
-    this.showPassword = !this.showPassword;
+    this.showPassword = !this.showPassword; 
   }
 
   onLogin() {
@@ -39,24 +39,27 @@ export class LoginComponent {
         this.message = res.message || 'Login successful!';
         this.token = res.access_token || null;
         if (this.token) {
-          console.log('Access token:', this.token);
+          // Store token in localStorage for API calls
           localStorage.setItem('token', this.token);
+          console.log('Access token stored:', this.token);
+          // Navigate to events page after successful login
+          setTimeout(() => {
+            this.router.navigate(['/events']);
+          }, 500);
         }
       },
       error: (err) => {
         this.loading = false;
         this.message = err.error?.detail || 'Invalid credentials';
         this.token = null;
+        // Clear any existing token on error
+        localStorage.removeItem('token');
       }
     });
   }
 
   goToHome() {
     this.router.navigate(['/']);
-  }
-
-  goToEvents() {
-    this.router.navigate(['/events']);
   }
 
   copyToken() {

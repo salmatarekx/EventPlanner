@@ -119,5 +119,34 @@ export class EventsComponent implements OnInit {
   goToInvite(eventId: string) {
     this.router.navigate(['/events/invite', eventId]);
   }
+
+  respondToEvent(eventId: string, response: 'Going' | 'Maybe' | 'Not Going') {
+    this.loading = true;
+    this.eventService.respondToEvent(eventId, response).subscribe({
+      next: (res) => {
+        this.loading = false;
+        this.message = res.message || 'Response recorded successfully!';
+        this.loadEvents(); // Reload to update response status
+        setTimeout(() => this.message = '', 3000);
+      },
+      error: (err) => {
+        this.loading = false;
+        this.message = err.error?.detail || 'Error recording response';
+      }
+    });
+  }
+
+  goToAttendees(eventId: string) {
+    this.router.navigate(['/events/attendees', eventId]);
+  }
+
+  goToSearch() {
+    this.router.navigate(['/events/search']);
+  }
+
+  getResponseBadgeClass(response: string): string {
+    if (!response) return '';
+    return 'response-' + response.toLowerCase().replace(' ', '-');
+  }
 }
 

@@ -23,6 +23,12 @@
   gap: 1rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .header h2 {
   margin: 0;
   color: #333;
@@ -42,6 +48,21 @@
 
 .create-btn:hover {
   background-color: #229954;
+}
+
+.search-btn {
+  padding: 0.8rem 1.5rem;
+  background-color: #2575fc;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.search-btn:hover {
+  background-color: #1a5edb;
 }
 
 .message {
@@ -193,11 +214,14 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 1rem;
+  flex-wrap: wrap;
 }
 
 .invite-btn,
-.delete-btn {
+.delete-btn,
+.attendees-btn {
   flex: 1;
+  min-width: 120px;
   padding: 0.6rem;
   border: none;
   border-radius: 8px;
@@ -215,6 +239,15 @@
   background-color: #229954;
 }
 
+.attendees-btn {
+  background-color: #2575fc;
+  color: white;
+}
+
+.attendees-btn:hover {
+  background-color: #1a5edb;
+}
+
 .delete-btn {
   background-color: #e74c3c;
   color: white;
@@ -222,6 +255,100 @@
 
 .delete-btn:hover {
   background-color: #c0392b;
+}
+
+.response-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.response-label {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.response-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.response-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 0.6rem 1rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  color: #555;
+}
+
+.response-btn.going {
+  border-color: #27ae60;
+  color: #27ae60;
+}
+
+.response-btn.going:hover,
+.response-btn.going.active {
+  background-color: #27ae60;
+  color: white;
+}
+
+.response-btn.maybe {
+  border-color: #f39c12;
+  color: #f39c12;
+}
+
+.response-btn.maybe:hover,
+.response-btn.maybe.active {
+  background-color: #f39c12;
+  color: white;
+}
+
+.response-btn.not-going {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.response-btn.not-going:hover,
+.response-btn.not-going.active {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.response-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.response-badge {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.response-badge.response-going {
+  background-color: #27ae60;
+  color: white;
+}
+
+.response-badge.response-maybe {
+  background-color: #f39c12;
+  color: white;
+}
+
+.response-badge.response-not-going {
+  background-color: #e74c3c;
+  color: white;
 }
 
 .loading,
