@@ -1,0 +1,59 @@
+<div class="auth-wrapper">
+  <div class="auth-box">
+    <h2>Login</h2>
+
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+      <!-- Email -->
+      <div class="form-group">
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          [(ngModel)]="email"
+          required
+          placeholder="Enter your email"
+        />
+      </div>
+
+      <!-- Password with toggle -->
+      <div class="form-group password-group">
+        <label>Password</label>
+        <div class="password-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            name="password"
+            [(ngModel)]="password"
+            required
+            placeholder="Enter your password"
+          />
+          <span class="toggle-password" (click)="togglePassword()">
+            <i class="fa" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </span>
+        </div>
+      </div>
+
+      <button type="submit" [disabled]="!loginForm.valid || loading">
+        {{ loading ? 'Logging in...' : 'Login' }}
+      </button>
+    </form>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+    
+    <div class="token-box" *ngIf="token">
+      <label>Access Token</label>
+      <div class="token-wrapper">
+        <textarea readonly>{{ token }}</textarea>
+        <button type="button" class="copy-btn" (click)="copyToken()">Copy Token</button>
+      </div>
+    </div>
+
+    <button type="button" class="back-btn" *ngIf="token" (click)="goToHome()">
+      Back to Home
+    </button>
+
+    <p class="switch" *ngIf="!token">
+      Don't have an account?
+      <a routerLink="/signup">Sign Up</a>
+    </p>
+  </div>
+</div>

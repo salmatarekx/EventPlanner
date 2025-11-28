@@ -1,0 +1,68 @@
+<div class="attendees-wrapper">
+  <div class="attendees-container">
+    <div class="header">
+      <h2>Event Attendees</h2>
+      <button type="button" class="back-btn" routerLink="/events">Back to Events</button>
+    </div>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+
+    <div *ngIf="loading" class="loading">Loading attendees...</div>
+
+    <div *ngIf="!loading && eventTitle" class="event-info">
+      <h3>{{ eventTitle }}</h3>
+      <p class="event-id">Event ID: {{ eventId }}</p>
+    </div>
+
+    <!-- Response Summary -->
+    <div *ngIf="!loading && totalAttendees > 0" class="summary-section">
+      <h4>Response Summary</h4>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <span class="summary-label">Total Attendees:</span>
+          <span class="summary-value">{{ totalAttendees }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label going">Going:</span>
+          <span class="summary-value">{{ responseSummary['Going'] || 0 }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label maybe">Maybe:</span>
+          <span class="summary-value">{{ responseSummary['Maybe'] || 0 }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label not-going">Not Going:</span>
+          <span class="summary-value">{{ responseSummary['Not Going'] || 0 }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label no-response">No Response:</span>
+          <span class="summary-value">{{ responseSummary['No Response'] || 0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendees List -->
+    <div *ngIf="!loading" class="attendees-section">
+      <h4>Attendees List</h4>
+      <div *ngIf="attendees.length === 0" class="empty">No attendees found for this event.</div>
+      
+      <div class="attendee-card" *ngFor="let attendee of attendees">
+        <div class="attendee-header">
+          <div class="attendee-info">
+            <span class="attendee-email">{{ attendee.email }}</span>
+            <span class="role-badge" [ngClass]="attendee.role === 'organizer' ? 'organizer' : 'attendee'">
+              {{ attendee.role === 'organizer' ? 'Organizer' : 'Attendee' }}
+            </span>
+          </div>
+          <span class="response-badge" [ngClass]="getResponseBadgeClass(attendee.response)">
+            {{ attendee.response || 'No Response' }}
+          </span>
+        </div>
+        <p *ngIf="attendee.response_updated_at" class="response-date">
+          Updated: {{ attendee.response_updated_at | date:'short' }}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+

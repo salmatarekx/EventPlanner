@@ -1,0 +1,166 @@
+<div class="events-wrapper">
+  <div class="events-container">
+    <div class="header">
+      <h2>Event Management</h2>
+      <div class="header-actions">
+        <button type="button" class="search-btn" (click)="goToSearch()">Search Events</button>
+        <button type="button" class="create-btn" (click)="toggleCreateForm()">
+          {{ showCreateForm ? 'Cancel' : '+ Create Event' }}
+        </button>
+      </div>
+    </div>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+
+    <!-- Create Event Form -->
+    <div class="create-form" *ngIf="showCreateForm">
+      <h3>Create New Event</h3>
+      <form (ngSubmit)="onCreateEvent()" #eventForm="ngForm">
+        <div class="form-group">
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            [(ngModel)]="title"
+            required
+            placeholder="Event title"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <textarea
+            name="description"
+            [(ngModel)]="description"
+            required
+            placeholder="Event description"
+            rows="4"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input
+              type="date"
+              name="date"
+              [(ngModel)]="date"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label>Time</label>
+            <input
+              type="time"
+              name="time"
+              [(ngModel)]="time"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Location</label>
+          <input
+            type="text"
+            name="location"
+            [(ngModel)]="location"
+            required
+            placeholder="Event location"
+          />
+        </div>
+
+        <button type="submit" [disabled]="!eventForm.valid || loading">
+          {{ loading ? 'Creating...' : 'Create Event' }}
+        </button>
+      </form>
+    </div>
+
+    <!-- Events Lists -->
+    <div class="events-section">
+      <!-- Organized Events -->
+      <div class="events-list">
+        <h3>My Organized Events</h3>
+        <div *ngIf="loading && organizedEvents.length === 0" class="loading">Loading...</div>
+        <div *ngIf="!loading && organizedEvents.length === 0" class="empty">No events organized yet.</div>
+        <div class="event-card" *ngFor="let event of organizedEvents">
+          <div class="event-header">
+            <h4>{{ event.title }}</h4>
+            <span class="role-badge organizer">Organizer</span>
+          </div>
+          <p class="event-description">{{ event.description }}</p>
+          <div class="event-details">
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Time:</strong> {{ event.time }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+          </div>
+          <div class="event-actions">
+            <button type="button" class="attendees-btn" (click)="goToAttendees(event.id)">View Attendees</button>
+            <button type="button" class="invite-btn" (click)="goToInvite(event.id)">Invite Users</button>
+            <button type="button" class="delete-btn" (click)="deleteEvent(event.id)">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invited Events -->
+      <div class="events-list">
+        <h3>Events I'm Invited To</h3>
+        <div *ngIf="!loading && invitedEvents.length === 0" class="empty">No invitations yet.</div>
+        <div class="event-card" *ngFor="let event of invitedEvents">
+          <div class="event-header">
+            <h4>{{ event.title }}</h4>
+            <span class="role-badge attendee">Attendee</span>
+          </div>
+          <p class="event-description">{{ event.description }}</p>
+          <div class="event-details">
+            <p><strong>Date:</strong> {{ event.date }}</p>
+            <p><strong>Time:</strong> {{ event.time }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Organizer:</strong> {{ event.organizer }}</p>
+            <p *ngIf="event.user_response"><strong>Your Response:</strong> 
+              <span class="response-badge" [ngClass]="getResponseBadgeClass(event.user_response)">
+                {{ event.user_response }}
+              </span>
+            </p>
+          </div>
+          <div class="response-actions">
+            <p class="response-label">Your Response:</p>
+            <div class="response-buttons">
+              <button 
+                type="button" 
+                class="response-btn going" 
+                [class.active]="event.user_response === 'Going'"
+                (click)="respondToEvent(event.id, 'Going')"
+                [disabled]="loading">
+                Going
+              </button>
+              <button 
+                type="button" 
+                class="response-btn maybe" 
+                [class.active]="event.user_response === 'Maybe'"
+                (click)="respondToEvent(event.id, 'Maybe')"
+                [disabled]="loading">
+                Maybe
+              </button>
+              <button 
+                type="button" 
+                class="response-btn not-going" 
+                [class.active]="event.user_response === 'Not Going'"
+                (click)="respondToEvent(event.id, 'Not Going')"
+                [disabled]="loading">
+                Not Going
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="back-section">
+      <button type="button" class="back-btn" routerLink="/">Back to Home</button>
+    </div>
+  </div>
+</div>
+
+

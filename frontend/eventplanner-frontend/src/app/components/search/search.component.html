@@ -1,0 +1,82 @@
+<div class="search-wrapper">
+  <div class="search-container">
+    <div class="header">
+      <h2>Search & Filter Events</h2>
+      <button type="button" class="back-btn" routerLink="/events">Back to Events</button>
+    </div>
+
+    <p class="message" *ngIf="message" [ngClass]="{'error-message': message.includes('Error') || message.includes('error'), 'info-message': message.includes('Please') || message.includes('No events found')}">{{ message }}</p>
+
+    <!-- Search Form -->
+    <div class="search-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Keyword</label>
+          <input
+            type="text"
+            name="keyword"
+            [(ngModel)]="keyword"
+            placeholder="Search in title or description"
+            (keyup.enter)="performSearch()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Role</label>
+          <select name="role" [(ngModel)]="role">
+            <option value="">All Events</option>
+            <option value="organizer">Organizer</option>
+            <option value="attendee">Attendee</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Date</label>
+        <input
+          type="date"
+          name="date"
+          [(ngModel)]="date"
+        />
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="search-btn" (click)="performSearch()" [disabled]="loading">
+          {{ loading ? 'Searching...' : 'Search' }}
+        </button>
+        <button type="button" class="clear-btn" (click)="clearFilters()" [disabled]="loading">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="results-section" *ngIf="searchResults.length > 0 || loading">
+      <h3>Search Results ({{ searchResults.length }})</h3>
+      
+      <div *ngIf="loading" class="loading">Loading...</div>
+      
+      <div class="event-card" *ngFor="let event of searchResults">
+        <div class="event-header">
+          <h4>{{ event.title }}</h4>
+          <span class="role-badge" [ngClass]="event.user_role === 'organizer' ? 'organizer' : 'attendee'">
+            {{ event.user_role === 'organizer' ? 'Organizer' : 'Attendee' }}
+          </span>
+        </div>
+        <p class="event-description">{{ event.description }}</p>
+        <div class="event-details">
+          <p><strong>Date:</strong> {{ event.date }}</p>
+          <p><strong>Time:</strong> {{ event.time }}</p>
+          <p><strong>Location:</strong> {{ event.location }}</p>
+          <p *ngIf="event.organizer && event.user_role !== 'organizer'"><strong>Organizer:</strong> {{ event.organizer }}</p>
+          <p *ngIf="event.user_response"><strong>Your Response:</strong> {{ event.user_response }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!loading && searchResults.length === 0 && !message" class="empty">
+      Use the filters above to search for events.
+    </div>
+  </div>
+</div>
+
