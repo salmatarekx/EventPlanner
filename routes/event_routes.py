@@ -39,10 +39,6 @@ def _get_events_collection():
 
 
 def _get_next_event_id():
-    """
-    Get the next sequential event ID starting from 1.
-    Uses MongoDB counters collection for thread-safe auto-increment.
-    """
     database.connect_to_mongo()
     if database.counters_collection is None:
         raise HTTPException(status_code=500, detail="Counters collection not initialized")
@@ -54,7 +50,6 @@ def _get_next_event_id():
     )
     
     if result is None:
-        # Initialize if doesn't exist
         database.counters_collection.insert_one({"_id": "event_id", "sequence_value": 1})
         return 1
     
@@ -62,10 +57,6 @@ def _get_next_event_id():
 
 
 def _validate_event_id(event_id: str):
-    """
-    Validate and convert event_id string to integer.
-    Raises HTTPException if event_id is invalid.
-    """
     if not event_id or not isinstance(event_id, str):
         raise HTTPException(status_code=400, detail="Event ID is required and must be a string")
     
@@ -82,12 +73,8 @@ def _validate_event_id(event_id: str):
 
 
 def _serialize_event(event_doc, user_email: str):
-    """
-    Serialize event document for API response.
-    """
     event_copy = {**event_doc}
     
-    # Use integer ID instead of ObjectId
     if "_id" in event_copy:
         event_copy["id"] = event_copy.pop("_id")
     elif "id" not in event_copy:
@@ -106,9 +93,8 @@ def _serialize_event(event_doc, user_email: str):
 
     event_copy["user_role"] = user_role
     event_copy["is_organizer"] = event_copy.get("organizer") == user_email
-    event_copy["user_response"] = user_response  # User's response status (Going, Maybe, Not Going, or None)
+    event_copy["user_response"] = user_response
     
-    # Include response status in attendees array for the current user
     if event_copy.get("attendees"):
         for attendee in event_copy["attendees"]:
             if attendee.get("email") == user_email:
@@ -119,27 +105,22 @@ def _serialize_event(event_doc, user_email: str):
 
 @event_router.post("/create")
 def create_event(event: EventCreate, Authorization: str = Header(None)):
-    """
-    Create a new event. Only the authenticated user can create events.
-    Event ID starts from 1 and auto-increments.
-    """
     try:
         logger.info("/events/create endpoint called")
         user_email = get_current_user(Authorization)
 
         events_collection = _get_events_collection()
         
-        # Get next sequential event ID
         event_id = _get_next_event_id()
 
         new_event = {
-            "_id": event_id,  # Use integer ID starting from 1
+            "_id": event_id,
             "title": event.title,
             "description": event.description,
             "date": event.date,
             "time": event.time,
             "location": event.location,
-            "organizer": user_email,  # Store organizer email for user isolation
+            "organizer": user_email,
             "attendees": [
                 {"email": user_email, "role": "organizer"}
             ],
@@ -159,16 +140,11 @@ def create_event(event: EventCreate, Authorization: str = Header(None)):
 
 @event_router.get("/my-events")
 def get_my_events(Authorization: str = Header(None)):
-    """
-    Get all events organized by the authenticated user.
-    User can only see their own events - complete user isolation.
-    """
     try:
         logger.info("/events/my-events endpoint called")
         user_email = get_current_user(Authorization)
 
         events_collection = _get_events_collection()
-        # Strict filter: only events where user is the organizer
         events = [
             _serialize_event(ev, user_email)
             for ev in events_collection.find({"organizer": user_email})
@@ -184,16 +160,11 @@ def get_my_events(Authorization: str = Header(None)):
         raise HTTPException(status_code=500, detail=f"Server Error: {str(e)}")
 @event_router.get("/me")
 def get_all_user_events(Authorization: str = Header(None)):
-    """
-    Get all events where the authenticated user is either organizer or attendee.
-    User can only see events they're part of - complete user isolation.
-    """
     try:
         logger.info("/events/me endpoint called")
         user_email = get_current_user(Authorization)
 
         events_collection = _get_events_collection()
-        # User can only see events they're part of (organizer or attendee)
         events = [
             _serialize_event(ev, user_email)
             for ev in events_collection.find({
@@ -216,16 +187,11 @@ def get_all_user_events(Authorization: str = Header(None)):
 
 @event_router.get("/invited")
 def get_invited_events(Authorization: str = Header(None)):
-    """
-    Get all events where the authenticated user is invited as an attendee.
-    User can only see events they're invited to - complete user isolation.
-    """
     try:
         logger.info("/events/invited endpoint called")
         user_email = get_current_user(Authorization)
 
         events_collection = _get_events_collection()
-        # User can only see events where they're an attendee (not organizer)
         events = [
             _serialize_event(ev, user_email)
             for ev in events_collection.find({
@@ -250,25 +216,18 @@ def get_invited_events(Authorization: str = Header(None)):
 
 @event_router.post("/invite")
 def invite_user(invite: InviteUser, Authorization: str = Header(None)):
-    """
-    Invite a user to an event. Only the event organizer can invite users.
-    User can only invite to events they created - complete user isolation.
-    """
     try:
         logger.info("/events/invite endpoint called")
         user_email = get_current_user(Authorization)
 
         events_collection = _get_events_collection()
 
-        # Validate and convert event ID to integer
         event_id = _validate_event_id(invite.event_id)
 
-        # Find event and verify user is the organizer
         event = events_collection.find_one({"_id": event_id})
         if not event:
             raise HTTPException(status_code=404, detail="Event not found")
 
-        # Strict check: only the organizer can invite users
         if event.get("organizer") != user_email:
             logger.warning(f"User {user_email} attempted to invite to event {event_id} (not organizer)")
             raise HTTPException(
@@ -276,12 +235,10 @@ def invite_user(invite: InviteUser, Authorization: str = Header(None)):
                 detail="Only the event organizer can invite users to this event"
             )
 
-        # Prevent duplicate invites
         for attendee in event.get("attendees", []):
             if attendee.get("email") == invite.email:
                 raise HTTPException(status_code=400, detail="User already invited to this event")
 
-        # Check if the email exists in the users collection
         database.connect_to_mongo()
         if database.users_collection is None:
             raise HTTPException(status_code=500, detail="Users collection not initialized")
@@ -294,7 +251,6 @@ def invite_user(invite: InviteUser, Authorization: str = Header(None)):
                 detail="User with this email does not exist. Please invite only registered users."
             )
 
-        # Add user to attendees
         events_collection.update_one(
             {"_id": event_id},
             {"$push": {"attendees": {"email": invite.email, "role": "attendee"}}}
@@ -311,25 +267,18 @@ def invite_user(invite: InviteUser, Authorization: str = Header(None)):
 
 @event_router.delete("/{event_id}")
 def delete_event(event_id: str, Authorization: str = Header(None)):
-    """
-    Delete an event. Only the event creator/organizer can delete it.
-    User can only delete events they created - complete user isolation.
-    """
     try:
         logger.info(f"/events/delete endpoint called for event {event_id}")
         user_email = get_current_user(Authorization)
 
         events_collection = _get_events_collection()
 
-        # Validate and convert event ID to integer
         event_id_int = _validate_event_id(event_id)
 
-        # Find event
         event = events_collection.find_one({"_id": event_id_int})
         if not event:
             raise HTTPException(status_code=404, detail="Event not found")
 
-        # Strict check: only the creator/organizer can delete
         organizer_email = event.get("organizer")
         if organizer_email != user_email:
             logger.warning(f"User {user_email} attempted to delete event {event_id} created by {organizer_email}")
@@ -338,7 +287,6 @@ def delete_event(event_id: str, Authorization: str = Header(None)):
                 detail="You cannot delete this event. Only the event creator can delete it."
             )
 
-        # Delete the event
         delete_result = events_collection.delete_one({"_id": event_id_int})
         
         if delete_result.deleted_count == 0:

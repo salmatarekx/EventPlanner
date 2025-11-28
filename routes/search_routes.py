@@ -19,10 +19,7 @@ search_router = APIRouter()
 
 
 def get_current_user(Authorization: str = Header(None)):
-    """
-    Extract and validate JWT token to get current user email.
-    Raises HTTPException if authentication fails.
-    """
+
     try:
         if not Authorization:
             logger.warning("Missing Authorization header")
@@ -61,10 +58,7 @@ def get_current_user(Authorization: str = Header(None)):
 
 
 def _get_events_collection():
-    """
-    Get the events collection from database.
-    Raises HTTPException if database connection fails.
-    """
+
     try:
         database.connect_to_mongo()
         if database.events_collection is None:
@@ -79,15 +73,10 @@ def _get_events_collection():
 
 
 def _serialize_event(event_doc, user_email: str):
-    """
-    Serialize event document for API response.
-    Includes user role and response status.
-    Uses integer ID instead of ObjectId.
-    """
+
     try:
         event_copy = {**event_doc}
         
-        # Use integer ID instead of ObjectId
         if "_id" in event_copy:
             event_copy["id"] = event_copy.pop("_id")
         elif "id" not in event_copy:
@@ -108,7 +97,6 @@ def _serialize_event(event_doc, user_email: str):
         event_copy["is_organizer"] = event_copy.get("organizer") == user_email
         event_copy["user_response"] = user_response
         
-        # Include response status in attendees array for the current user
         if event_copy.get("attendees"):
             for attendee in event_copy["attendees"]:
                 if attendee.get("email") == user_email:
@@ -118,7 +106,6 @@ def _serialize_event(event_doc, user_email: str):
         return event_copy
     except Exception as e:
         logger.error(f"Error serializing event: {str(e)}")
-        # Return basic event info if serialization fails
         event_copy = {**event_doc}
         if "_id" in event_copy:
             event_copy["id"] = event_copy.pop("_id")
@@ -126,10 +113,7 @@ def _serialize_event(event_doc, user_email: str):
 
 
 def _validate_date_format(date_str: str, field_name: str):
-    """
-    Validate date string format (YYYY-MM-DD).
-    Raises HTTPException if format is invalid.
-    """
+
     if not date_str or not isinstance(date_str, str):
         raise HTTPException(status_code=400, detail=f"{field_name} must be a string")
     
@@ -137,7 +121,6 @@ def _validate_date_format(date_str: str, field_name: str):
     if not date_str:
         raise HTTPException(status_code=400, detail=f"{field_name} cannot be empty")
     
-    # Check format YYYY-MM-DD
     date_pattern = r'^\d{4}-\d{2}-\d{2}$'
     if not re.match(date_pattern, date_str):
         raise HTTPException(
@@ -145,7 +128,6 @@ def _validate_date_format(date_str: str, field_name: str):
             detail=f"{field_name} must be in YYYY-MM-DD format (e.g., 2024-12-25)"
         )
     
-    # Validate actual date
     try:
         datetime.strptime(date_str, "%Y-%m-%d")
     except ValueError:
@@ -158,10 +140,7 @@ def _validate_date_format(date_str: str, field_name: str):
 
 
 def _validate_date_range(start_date: Optional[str], end_date: Optional[str]):
-    """
-    Validate that start_date is before or equal to end_date.
-    Raises HTTPException if invalid.
-    """
+
     if start_date and end_date:
         try:
             start = datetime.strptime(start_date, "%Y-%m-%d")
@@ -173,15 +152,11 @@ def _validate_date_range(start_date: Optional[str], end_date: Optional[str]):
                     detail="start_date must be before or equal to end_date"
                 )
         except ValueError:
-            # This shouldn't happen if _validate_date_format was called first
             raise HTTPException(status_code=400, detail="Invalid date format")
 
 
 def _validate_role(role: Optional[str]):
-    """
-    Validate role parameter.
-    Raises HTTPException if invalid.
-    """
+
     if role is not None:
         role = role.strip().lower() if isinstance(role, str) else role
         valid_roles = ["organizer", "attendee"]
@@ -195,16 +170,10 @@ def _validate_role(role: Optional[str]):
 
 
 def _sanitize_keyword(keyword: str):
-    """
-    Sanitize keyword input to prevent regex injection.
-    Returns sanitized keyword.
-    """
+
     if not keyword:
         return None
-    
-    # Remove potentially dangerous regex characters or escape them
-    # For basic search, we'll use simple regex escaping
-    # In production, consider using MongoDB text search instead
+
     keyword = keyword.strip()
     
     if len(keyword) > 200:
@@ -221,24 +190,12 @@ def search_events(
     end_date: Optional[str] = Query(None, description="Filter events until this date (YYYY-MM-DD)"),
     role: Optional[str] = Query(None, description="Filter by user role: 'organizer' or 'attendee'")
 ):
-    """
-    Advanced search API to filter events based on keywords, dates, and user roles.
-    By default, shows ALL events. Use role filter to see only events where user has a specific role.
-    
-    - **keyword**: Search term to match in event title and description (case-insensitive)
-    - **start_date**: Filter events from this date onwards (format: YYYY-MM-DD)
-    - **end_date**: Filter events up to this date (format: YYYY-MM-DD)
-    - **role**: Optional filter by user's role in events ('organizer' or 'attendee'). If not specified, shows all events.
-    
-    Returns filtered list of events with applied filters metadata.
-    """
+
     try:
         logger.info("/events/search endpoint called")
         
-        # Validate authentication
         user_email = get_current_user(Authorization)
         
-        # Validate and sanitize inputs
         validated_keyword = None
         if keyword:
             validated_keyword = _sanitize_keyword(keyword)
@@ -251,36 +208,26 @@ def search_events(
         if end_date:
             validated_end_date = _validate_date_format(end_date, "end_date")
         
-        # Validate date range
         _validate_date_range(validated_start_date, validated_end_date)
         
-        # Validate role
         validated_role = _validate_role(role)
         
-        # Get database collection
         events_collection = _get_events_collection()
         
-        # Build the MongoDB query
         query = {}
         
-        # Filter by user role (optional - if specified, filter by user's role in events)
         try:
             if validated_role == "organizer":
-                # Show only events where user is the organizer
                 query["organizer"] = user_email
             elif validated_role == "attendee":
-                # Show only events where user is an attendee (not organizer)
                 query["attendees.email"] = user_email
                 query["organizer"] = {"$ne": user_email}
-            # If no role specified, show ALL events (no user filter)
         except Exception as e:
             logger.error(f"Error building role query: {str(e)}")
             raise HTTPException(status_code=500, detail="Error building search query")
         
-        # Filter by keyword (search in title and description)
         if validated_keyword:
             try:
-                # Escape special regex characters for safety
                 escaped_keyword = re.escape(validated_keyword)
                 keyword_query = {
                     "$or": [
@@ -290,7 +237,6 @@ def search_events(
                 }
                 
                 if "$or" in query:
-                    # Combine with existing $or using $and
                     query = {
                         "$and": [
                             query,
@@ -303,7 +249,6 @@ def search_events(
                 logger.error(f"Error building keyword query: {str(e)}")
                 raise HTTPException(status_code=500, detail="Error processing keyword search")
         
-        # Filter by date range
         if validated_start_date or validated_end_date:
             try:
                 date_query = {}
@@ -318,21 +263,18 @@ def search_events(
                 logger.error(f"Error building date query: {str(e)}")
                 raise HTTPException(status_code=500, detail="Error processing date filter")
         
-        # Execute query
         try:
             events = list(events_collection.find(query))
         except Exception as e:
             logger.error(f"Error executing database query: {str(e)}")
             raise HTTPException(status_code=500, detail="Error executing search query. Please try again.")
         
-        # Serialize events
         serialized_events = []
         for ev in events:
             try:
                 serialized_events.append(_serialize_event(ev, user_email))
             except Exception as e:
                 logger.warning(f"Error serializing event {ev.get('_id', ev.get('id', 'unknown'))}: {str(e)}")
-                # Continue with other events even if one fails
                 continue
         
         logger.info(f"Search returned {len(serialized_events)} events for user {user_email}")

@@ -18,10 +18,7 @@ response_router = APIRouter()
 
 
 def get_current_user(Authorization: str = Header(None)):
-    """
-    Extract and validate JWT token to get current user email.
-    Raises HTTPException if authentication fails.
-    """
+
     try:
         if not Authorization:
             logger.warning("Missing Authorization header")
@@ -60,10 +57,6 @@ def get_current_user(Authorization: str = Header(None)):
 
 
 def _get_events_collection():
-    """
-    Get the events collection from database.
-    Raises HTTPException if database connection fails.
-    """
     try:
         database.connect_to_mongo()
         if database.events_collection is None:
@@ -78,10 +71,7 @@ def _get_events_collection():
 
 
 def _validate_event_id(event_id: str):
-    """
-    Validate and convert event_id string to integer.
-    Raises HTTPException if event_id is invalid.
-    """
+
     if not event_id or not isinstance(event_id, str):
         raise HTTPException(status_code=400, detail="Event ID is required and must be a string")
     
@@ -99,10 +89,7 @@ def _validate_event_id(event_id: str):
 
 
 def _get_event_by_id(events_collection, event_id: str):
-    """
-    Retrieve event by ID.
-    Raises HTTPException if event not found.
-    """
+
     try:
         event_id_int = _validate_event_id(event_id)
         event = events_collection.find_one({"_id": event_id_int})
@@ -121,21 +108,12 @@ def _get_event_by_id(events_collection, event_id: str):
 
 @response_router.post("/{event_id}/respond")
 def respond_to_event(event_id: str, response: EventResponse, Authorization: str = Header(None)):
-    """
-    Attendees can indicate their attendance status for events (Going, Maybe, Not Going).
-    
-    - **event_id**: The ID of the event to respond to
-    - **response**: The attendance response (Going, Maybe, Not Going)
-    
-    Returns success message with the recorded response.
-    """
+
     try:
         logger.info(f"POST /events/{event_id}/respond endpoint called")
         
-        # Validate authentication
         user_email = get_current_user(Authorization)
         
-        # Validate response data
         if not response or not response.response:
             raise HTTPException(status_code=400, detail="Response is required")
         
@@ -146,19 +124,15 @@ def respond_to_event(event_id: str, response: EventResponse, Authorization: str 
                 detail=f"Invalid response. Must be one of: {', '.join(valid_responses)}"
             )
         
-        # Get database collection
         events_collection = _get_events_collection()
         
-        # Retrieve event
         event = _get_event_by_id(events_collection, event_id)
         
-        # Validate user is an attendee
         attendees = event.get("attendees", [])
         if not attendees:
             logger.warning(f"Event {event_id} has no attendees")
             raise HTTPException(status_code=500, detail="Event has no attendees")
         
-        # Find user in attendees list
         attendee_index = -1
         user_role = None
         
@@ -168,7 +142,6 @@ def respond_to_event(event_id: str, response: EventResponse, Authorization: str 
                 attendee_index = idx
                 break
         
-        # Check if user is organizer
         if user_role == "organizer":
             logger.info(f"Organizer {user_email} attempted to respond to event {event_id}")
             raise HTTPException(
@@ -176,7 +149,6 @@ def respond_to_event(event_id: str, response: EventResponse, Authorization: str 
                 detail="Organizers do not need to respond. They are automatically marked as attending."
             )
         
-        # Check if user is an attendee
         if attendee_index == -1:
             logger.warning(f"User {user_email} is not an attendee of event {event_id}")
             raise HTTPException(
@@ -184,7 +156,6 @@ def respond_to_event(event_id: str, response: EventResponse, Authorization: str 
                 detail="You are not an attendee of this event. Please request an invitation first."
             )
         
-        # Update the attendee's response status
         try:
             attendees[attendee_index]["response"] = response.response
             attendees[attendee_index]["response_updated_at"] = datetime.utcnow()
@@ -225,26 +196,16 @@ def respond_to_event(event_id: str, response: EventResponse, Authorization: str 
 
 @response_router.get("/{event_id}/attendees")
 def get_event_attendees(event_id: str, Authorization: str = Header(None)):
-    """
-    Organizers can view the list of attendees and their statuses for each event.
-    
-    - **event_id**: The ID of the event to get attendees for
-    
-    Returns detailed list of attendees with their response statuses and summary statistics.
-    """
+
     try:
         logger.info(f"GET /events/{event_id}/attendees endpoint called")
         
-        # Validate authentication
         user_email = get_current_user(Authorization)
         
-        # Get database collection
         events_collection = _get_events_collection()
         
-        # Retrieve event
         event = _get_event_by_id(events_collection, event_id)
         
-        # Validate user is the organizer
         organizer_email = event.get("organizer")
         if not organizer_email:
             logger.error(f"Event {event_id} has no organizer")
@@ -257,7 +218,6 @@ def get_event_attendees(event_id: str, Authorization: str = Header(None)):
                 detail="Only the event organizer can view attendee responses"
             )
         
-        # Build attendees list with response statuses
         attendees_list = []
         attendees_data = event.get("attendees", [])
         
@@ -290,7 +250,6 @@ def get_event_attendees(event_id: str, Authorization: str = Header(None)):
                     "response_updated_at": attendee.get("response_updated_at")
                 }
                 
-                # Format datetime if present
                 if attendee_info["response_updated_at"] and isinstance(attendee_info["response_updated_at"], datetime):
                     attendee_info["response_updated_at"] = attendee_info["response_updated_at"].isoformat()
                 
@@ -299,7 +258,6 @@ def get_event_attendees(event_id: str, Authorization: str = Header(None)):
                 logger.warning(f"Error processing attendee entry: {str(e)}")
                 continue
         
-        # Calculate response summary
         response_summary = {
             "Going": sum(1 for a in attendees_list if a.get("response") == "Going"),
             "Maybe": sum(1 for a in attendees_list if a.get("response") == "Maybe"),
