@@ -12,14 +12,14 @@ app = FastAPI(title="EventPlanner API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200"],
+    allow_origins=["http://localhost:4200", "http://frontend:80"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 @app.on_event("startup")
-def startup_db_client():
+async def startup_db_client():
     connect_to_mongo()
 
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
