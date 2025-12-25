@@ -3,7 +3,7 @@ version: "3.8"
 services:
   db:
     build:
-      context: ./database
+      context: ./db
       dockerfile: Dockerfile
     container_name: mongo-db
     restart: unless-stopped
@@ -19,12 +19,12 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     container_name: backend-api
     restart: unless-stopped
     environment:
-      MONGO_URL: mongodb://mongo-db:27017
+      MONGO_URL: ${MONGO_URI:-mongodb://mongo-db:27017/eventplanner}
       SECRET_KEY: ${SECRET_KEY:-SECRETKEY123}
     depends_on:
       db:
@@ -45,3 +45,6 @@ services:
 
 volumes:
   mongodata:
+
+
+

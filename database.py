@@ -5,7 +5,8 @@ from pymongo.errors import ServerSelectionTimeoutError
 import time
 
 load_dotenv()
-MONGO_URL = os.getenv("MONGO_URI", "mongodb://mongo-db:27017")
+# Support both env names; prefer MONGO_URL if set
+MONGO_URL = os.getenv("MONGO_URL") or os.getenv("MONGO_URI") or "mongodb://mongo-db:27017/eventplanner"
 
 client = None
 db = None
