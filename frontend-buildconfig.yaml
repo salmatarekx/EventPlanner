@@ -1,0 +1,33 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: frontend-build
+spec:
+  source:
+    type: Git
+    git:
+      uri: 'https://github.com/salmatarekx/EventPlanner.git'
+      ref: phase3-testm
+    contextDir: '/frontend/eventplanner-frontend'
+  strategy:
+    type: Docker
+    dockerStrategy:
+      dockerfilePath: Dockerfile
+  output:
+    to:
+      kind: ImageStreamTag
+      name: 'eventplanner-frontend:latest'
+  triggers:
+    - type: ConfigChange
+    - type: GitHub
+      github:
+        secret: github-webhook-secret
+
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: eventplanner-frontend
+spec:
+  lookupPolicy:
+    local: false

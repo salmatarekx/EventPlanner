@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-secrets
+type: Opaque
+stringData:
+  SECRET_KEY: "SECRETKEY123"
+  MONGO_URI: "mongodb+srv://moyasser_database_eventplanner:moyasser%402003@eventplanner.nl4k3zl.mongodb.net/eventplanner?retryWrites=true&w=majority&appName=eventplanner"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  labels:
+    app: eventplanner-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eventplanner-backend
+  template:
+    metadata:
+      labels:
+        app: eventplanner-backend
+    spec:
+      containers:
+      - name: backend
+        image: image-registry.openshift-image-registry.svc:5000/YOUR_PROJECT_NAME/eventplanner-backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: SECRET_KEY
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: backend-secrets
+              key: MONGO_URI
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: eventplanner-backend
+  ports:
+  - protocol: TCP
+    port: 8000
+    targetPort: 8000
+  type: ClusterIP
+
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: backend-route
+spec:
+  to:
+    kind: Service
+    name: backend-service
+  port:
+    targetPort: 8000
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect

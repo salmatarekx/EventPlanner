@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EventService {
 
-  private apiUrl = 'http://127.0.0.1:8000/events';
+  private apiUrl = `${environment.apiUrl}/events`;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || '';
@@ -48,7 +49,7 @@ export class EventService {
     if (params.start_date) queryParams.append('start_date', params.start_date);
     if (params.end_date) queryParams.append('end_date', params.end_date);
     if (params.role) queryParams.append('role', params.role);
-    
+
     const queryString = queryParams.toString();
     const url = queryString ? `${this.apiUrl}/search?${queryString}` : `${this.apiUrl}/search`;
     return this.http.get(url, { headers: this.getHeaders() });

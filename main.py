@@ -12,7 +12,7 @@ app = FastAPI(title="EventPlanner API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:4200", "http://frontend:80"],
+    allow_origins=["*"],  # Allow all origins for OpenShift deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
