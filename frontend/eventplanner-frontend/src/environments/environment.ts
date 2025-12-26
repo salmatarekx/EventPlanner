@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'BACKEND_URL_PLACEHOLDER'
+    apiUrl: 'https://backend-route-mouayedamr-dev.apps.rm3.7wse.p1.openshiftapps.com'
 };
